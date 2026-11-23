@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expiry Tracker</title>
+
+<style>
+body{
+    font-family:Arial,sans-serif;
+    background:#f4f4f4;
+    margin:0;
+    padding:15px;
+}
+
+.container{
+    max-width:500px;
+    margin:auto;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+h1{
+    margin-top:0;
+}
+
+label{
+    display:block;
+    margin-top:12px;
+    margin-bottom:4px;
+    font-weight:bold;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    border:1px solid #ccc;
+    border-radius:8px;
+    box-sizing:border-box;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+.save-btn{
+    margin-top:20px;
+    background:#28a745;
+    color:white;
+}
+
+.product-list{
+    margin-top:20px;
+}
+
+.product{
+    background:white;
+    border-radius:10px;
+    padding:12px;
+    margin-bottom:10px;
+    border-left:5px solid #28a745;
+}
+
+.delete-btn{
+    background:#dc3545;
+    color:white;
+    margin-top:10px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+    <div class="card">
+        <h1>Expiry Tracker</h1>
+
+        <label>Barcode</label>
+        <input id="barcode" placeholder="Scan or enter barcode">
+
+        <label>Product Description</label>
+        <input id="description" placeholder="Enter product name">
+
+        <label>Number of Units</label>
+        <input id="units" type="number" min="1">
+
+        <label>Expiry Date</label>
+        <input id="expiryDate" type="date">
+
+        <button class="save-btn" onclick="saveProduct()">
+            Save Product
+        </button>
+    </div>
+
+    <div class="product-list" id="productList"></div>
+
+</div>
+
+<script>
+
+let products =
+JSON.parse(localStorage.getItem("products")) || [];
+
+renderProducts();
+
+function saveProduct(){
+
+    const barcode =
+    document.getElementById("barcode").value;
+
+    const description =
+    document.getElementById("description").value;
+
+    const units =
+    document.getElementById("units").value;
+
+    const expiryDate =
+    document.getElementById("expiryDate").value;
+
+    if(
+        !barcode ||
+        !description ||
+        !units ||
+        !expiryDate
+    ){
+        alert("Please complete all fields");
+        return;
+    }
+
+    const product = {
+        barcode,
+        description,
+        units,
+        expiryDate
+    };
+
+    products.push(product);
+
+    localStorage.setItem(
+        "products",
+        JSON.stringify(products)
+    );
+
+    clearForm();
+    renderProducts();
+}
+
+function clearForm(){
+
+    document.getElementById("barcode").value = "";
+    document.getElementById("description").value = "";
+    document.getElementById("units").value = "";
+    document.getElementById("expiryDate").value = "";
+}
+
+function deleteProduct(index){
+
+    products.splice(index,1);
+
+    localStorage.setItem(
+        "products",
+        JSON.stringify(products)
+    );
+
+    renderProducts();
+}
+
+function renderProducts(){
+
+    const list =
+    document.getElementById("productList");
+
+    list.innerHTML = "";
+
+    if(products.length === 0){
+
+        list.innerHTML =
+        "<p>No products added yet.</p>";
+
+        return;
+    }
+
+    products.forEach((product,index)=>{
+
+        list.innerHTML += `
+        <div class="product">
+            <strong>${product.description}</strong><br>
+            Barcode: ${product.barcode}<br>
+            Units: ${product.units}<br>
+            Expiry: ${product.expiryDate}
+            <button
+                class="delete-btn"
+                onclick="deleteProduct(${index})">
+                Delete
+            </button>
+        </div>
+        `;
+    });
+}
+
+</script>
+
+</body>
+</html>
